@@ -3,13 +3,13 @@
 Plugin Name: heatmap for WordPress
 Plugin URI: http://wordpress.org/plugins/heatmap-for-wp/
 Description: Real-time analytics and event tracking for your WordPress site (see https://heatmap.me)
-Version: 0.3.1
+Version: 0.3.2
 Author: HeatMap, Inc
 Author URI: https://heatmap.me
 License: GPL2
 */
 /*
-Copyright 2014 - HeatMap, Inc - https://heatmap.me/
+Copyright 2015 - HeatMap, Inc - https://heatmap.me/
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as 
@@ -123,6 +123,8 @@ class heatmapWP {
 	}
 	public function admin_bar_menu() {
 		if (!is_admin_bar_showing()) return;
+		if ($this->get_option('hide_button')) return;
+		
 		global $wp_admin_bar;
 		$wp_admin_bar->add_menu( array(
 			'id' => self::$PLUGIN_SLUG.'-bar',
@@ -141,6 +143,7 @@ class heatmapWP {
 		$new_values = array(
 			'ext_use' => true && $this->array_get($_POST, 'ext_use'),
 			'ext_code' => $this->array_get($_POST, 'ext_code'),
+			'hide_button' => true && $this->array_get($_POST, 'hide_button'),
 		);
 		$this->set_options($new_values, true);
 		wp_safe_redirect(add_query_arg('saved', '1', wp_get_referer()));
@@ -220,8 +223,8 @@ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(hm
 		global $pagenow;
 		return str_replace('.php', '', $pagenow);
 	}
-	private function load_options($force_reload = false) {
-		if (!$force_reload && count($this->options) > 0) return;
+	private function load_options() {
+		if (count($this->options) > 0) return;
 		$default_options = array(
 			'active' => false,
 			'active_last_check' => 0,
@@ -237,6 +240,8 @@ var heatmap_ext = {
 	}
 };
 EXT_DEFAULT
+				,
+			'hide_button' => false
 		);
 		$option_db_value = get_option(self::$OPTION_NAME);
 		if (empty($option_db_value)) {
@@ -298,7 +303,7 @@ EXT_DEFAULT
 				}
 				?>
 				<hr>
-				<h3>Getting heatmap for your site</h3>
+				<h3><?php _e('Getting heatmap for your site', self::$PLUGIN_SLUG) ?></h3>
 				<ol>
 					<li>
 						<?php printf(__('Create your account on %s.', self::$PLUGIN_SLUG), '<a href="https://heatmap.me/" target="_blank">https://heatmap.me</a>'); ?>
@@ -316,23 +321,37 @@ EXT_DEFAULT
 					<small><?php printf(__('Last check: %s ago', self::$PLUGIN_SLUG), $check_text); ?></small>
 				</p>
 			<?php else: ?>
+				<hr>
 				<?php $action = self::$ACTION_PREFIX.'save'; ?>
+				<h3><?php _e('How to see your heatmap', self::$PLUGIN_SLUG) ?></h3>
 				<p>
-					<?php printf(__('While browsing your site, simply use the "%s" button from your admin bar to toggle heatmap\'s sidebar on or off.', self::$PLUGIN_SLUG), $this->get_admin_bar_toggle_button()); ?>
+					<u><?php _e('While browsing your site', self::$PLUGIN_SLUG) ?></u>,
+					<?php _e('you can either', self::$PLUGIN_SLUG) ?>
 				</p>
-				<p style="margin:0 30px;">
-					<small>
-						<?php _e('If you disabled the admin bar from your site, you can either hit Alt+Shift+H on your keyboard<br> or use our bookmarklet', self::$PLUGIN_SLUG) ?>
-						<span style="display:inline-block;">
+				<ul>
+					<?php if (!$this->get_option('hide_button')): ?>
+					<li>
+						&nbsp; &bull; <?php printf(__('use the "%s" button from your admin bar', self::$PLUGIN_SLUG), $this->get_admin_bar_toggle_button()); ?>
+					</li>
+					<?php endif; ?>
+					<li>
+						&nbsp; &bull; <?php _e('hit Alt+Shift+H on your keyboard', self::$PLUGIN_SLUG) ?>
+					</li>
+					<li>
+						&nbsp; &bull; <?php _e('use our bookmarklet:', self::$PLUGIN_SLUG) ?>
+						<small style="display:inline-block;">
 							<a ondragstart="try{event.dataTransfer.setDragImage(this,$(this).width()/2,$(this).height()/2);}catch(e){}"
 								href="javascript:(function(){<?php echo esc_attr(self::$JS_TRIGGER); ?>})();"
 								style="display:inline-block; padding:0 8px;border-radius:4px;background:#ccc;text-decoration:none;color:#000;cursor:move;">
 								heatmap
 							</a>
 							&larr; <?php _e('drag this to your bookmarks bar', self::$PLUGIN_SLUG) ?>
-						</span>
-					</small>
-				</p>
+						</small>
+					</li>
+				</ul>
+				<p>
+				<?php _e('to toggle heatmap\'s sidebar on or off.', self::$PLUGIN_SLUG) ?>
+			 	</p>
 				<hr>
 				<h3 class="title"><?php _e('Options', self::$PLUGIN_SLUG) ?></h3>
 				<table class="form-table">
@@ -350,6 +369,15 @@ EXT_DEFAULT
 							<textarea name="ext_code" id="heatmap_ext_editor" rows="10" cols="50" style="width:100%"><?php echo htmlspecialchars($this->get_option('ext_code')) ?></textarea>
 							<br>
 							<small><?php _e('Note: if your custom code has errors, no events will be logged', self::$PLUGIN_SLUG) ?></small>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><?php _e('Button in admin bar', self::$PLUGIN_SLUG) ?></th>
+						<td>
+							<label for="hide_button_checkbox">
+								<input id="hide_button_checkbox" type="checkbox" name="hide_button" value="1" <?php if ($this->get_option('hide_button')) echo 'checked'; ?>>
+								<?php printf(__('Hide "%s" button in admin bar', self::$PLUGIN_SLUG), $this->get_admin_bar_toggle_button()) ?>
+							</label>
 						</td>
 					</tr>
 				</table>
