@@ -141,7 +141,7 @@ class heatmapWP {
 			'meta' => array('onclick' => self::$JS_TRIGGER.';return false;'),
 			'title' => $this->get_admin_bar_toggle_button(),
 			'href' => '#',
-		) );
+		));
 	}
 	public function admin_post_check() {
 		check_admin_referer(self::$ACTION_PREFIX.'check');
@@ -437,8 +437,6 @@ EXT_DEFAULT
 		return '<span style="display:inline-block;width:16px;background:transparent url('.$this->get_asset('icon-16.png').') 50% 50% no-repeat; }">&nbsp;</span>'.
 			' heatmap';
 	}
-				
-				
 	
 	private function get_conflicting_plugins() {
 		$conflicts = array();
