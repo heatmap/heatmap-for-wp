@@ -62,16 +62,18 @@ git push origin master --tags
 
 echo 
 echo "Creating local copy of SVN repo ..."
+rm -rf $SVNPATH/
 svn co $SVNURL $SVNPATH
 
 echo "Clearing svn repo so we can overwrite it"
-svn rm $SVNPATH/trunk/*
+rm -rf $SVNPATH/trunk/*
 
 echo "Exporting the HEAD of master from git to the trunk of SVN"
 git checkout-index -a -f --prefix=$SVNPATH/trunk/
 
 echo "Ignoring github specific files and deployment script"
 svn propset svn:ignore "deploy.sh
+LICENSE
 README.md
 .git
 .gitignore" "$SVNPATH/trunk/"
@@ -89,6 +91,6 @@ cd $SVNPATH/tags/$NEWVERSION1
 svn commit --username=$SVNUSER -m "Tagging version $NEWVERSION1"
 
 echo "Removing temporary directory $SVNPATH"
-rm -fr $SVNPATH/
+rm -rf $SVNPATH/
 
 echo "*** FIN ***"
