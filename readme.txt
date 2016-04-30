@@ -3,7 +3,7 @@ Contributors: heatmap
 Tags: analytics, heat map, heatmap, real time, realtime, tracking, click map, mouse map, statistics, funnel, conversion
 Requires at least: 3.1
 Tested up to: 4.5
-Stable tag: trunk
+Stable tag: 0.4.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,10 @@ Not a bit. Our tag is very small and fully asynchronous. Plus, we set up powerfu
 
 
 == Changelog ==
+= 0.4.0 =
+* Changed to use the new version of tag
+* Show warning on plugin conflicts
+
 = 0.3.2 =
 * Option to disable the button in the admin bar
 * Minor reorganization of heatmap page
