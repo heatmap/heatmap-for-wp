@@ -3,13 +3,13 @@
 Plugin Name: heatmap for WordPress
 Plugin URI: http://wordpress.org/plugins/heatmap-for-wp/
 Description: Real-time analytics and event tracking for your WordPress site (see https://heatmap.me)
-Version: 0.3.2
+Version: 0.4.0
 Author: HeatMap, Inc
 Author URI: https://heatmap.me
 License: GPL2
 */
 /*
-Copyright 2015 - HeatMap, Inc - https://heatmap.me/
+Copyright 2016 - HeatMap, Inc - https://heatmap.me/
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as 
@@ -40,6 +40,8 @@ class heatmapWP {
 	private static $ACTION_PREFIX;
 	private static $OPTION_NAME = 'heatmapWP_options';
 	private static $JS_TRIGGER = 'var s=document.createElement("script");s.type="text/javascript";s.src="//u.heatmap.it/bookmark.js";(top.document.body || top.document.getElementsByTagName("head")[0]).appendChild(s);';
+	private static $CONFLICTING_PLUGINS = array('hotspots/hotspots.php');
+	
 	/**
 	 * Main function of the singleton class
 	 */
@@ -59,7 +61,6 @@ class heatmapWP {
 			} else {
 				add_action('admin_post_'.self::$ACTION_PREFIX.'check', array($this, 'admin_post_check'));
 			}
-			// TODO: load_plugin_textdomain($PLUGIN_SLUG, false, self::$PLUGIN_DIR.'languages' );
 		} else {
 			if ($this->get_option('active')) {
 				add_action('wp_head', array($this, 'front_write_script'));
@@ -103,11 +104,20 @@ class heatmapWP {
 		add_menu_page('heatmap', 'heatmap', 'manage_options', self::$PLUGIN_SLUG, array($this, 'admin_options_page'), $this->get_asset('icon-16.png'));
 	}
 	public function admin_notices() {
+		if ($this->get_page_type() != 'plugins') {
+			return;
+		}
 		$this->show_notice(
-			$this->get_page_type() == 'plugins' && !$this->get_option('active'),
+			!$this->get_option('active'),
 			'error', 'heatmap',
 			__('You are almost done!', self::$PLUGIN_SLUG).' '.
 				sprintf('<a href="%s">%s</a>', admin_url('admin.php?'.http_build_query(array('page' => self::$PLUGIN_SLUG))), __('Click here to setup the plugin', self::$PLUGIN_SLUG))
+		);
+		$conflicting_plugins = $this->get_conflicting_plugins();
+		$this->show_notice(
+			count($conflicting_plugins) > 0,
+			'error', 'heatmap',
+			sprintf(__('Plugin conflict will prevent heatmap from working. Please deactivate the following conflicting plugins: %s', self::$PLUGIN_SLUG), implode(', ', $conflicting_plugins))
 		);
 	}
 	/**
@@ -158,11 +168,10 @@ class heatmapWP {
 <?php if (is_admin_bar_showing()): ?>
 window.heatmap_ext=window.heatmap_ext||{};window.heatmap_ext.recordDisabled=true;
 <?php endif; ?>
-(function() {
-var hm = document.createElement('script'); hm.type ='text/javascript'; hm.async = true;
-hm.src = ('++u-heatmap-it+log-js').replace(/[+]/g,'/').replace(/-/g,'.');
-var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(hm, s);
-})();
+(function(h,e,a,t,m,p) {
+m=e.createElement(a);m.async=!0;m.src=t;
+p=e.getElementsByTagName(a)[0];p.parentNode.insertBefore(m,p);
+})(window,document,'script','https://u.heatmap.it/log.js');
 </script>
 		<?php
 	}
@@ -208,7 +217,7 @@ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(hm
 			if ('' === $check_err) {
 				$options_new_values['active'] = $this->array_get($check_result, 'active', false);
 			} elseif ($this->get_option('active_last_check_err')) {
-				// on second successive error, we disable the plugin 
+				// on second successive error, we deactivate the plugin 
 				$options_new_values['active'] = false;
 			}
 			$this->set_options($options_new_values);
@@ -245,7 +254,7 @@ EXT_DEFAULT
 		);
 		$option_db_value = get_option(self::$OPTION_NAME);
 		if (empty($option_db_value)) {
-			$this->set_options($default_options); // make sure to save the options in DB so WP won't try to load them separately each time
+			$this->set_options($default_options); // make sure to save the options in DB so WP won't try to load them separately every time
 		} else {
 			$this->set_options(wp_parse_args($option_db_value, $default_options), false); 
 		}
@@ -280,11 +289,17 @@ EXT_DEFAULT
 			__('The plugin cannot find your heatmap account', self::$PLUGIN_SLUG).'<br>'.
 			('' !== $this->get_option('active_last_check_err') ? sprintf('<small>[ error: %s ]</small>', $this->get_option('active_last_check_err')) : '')
 		);
+		$conflicting_plugins = $this->get_conflicting_plugins();
+		$this->show_notice(count($conflicting_plugins) > 0, 'error', 'Error',
+			sprintf(__('heatmap won\'t work properly. Please deactivate the following conflicting plugins: %s', self::$PLUGIN_SLUG), implode(', ', $conflicting_plugins))
+		);		
 		?>
 		<form action="admin-post.php" method="POST">
 			<p class="hm-status">
 				<?php _e('Plugin status:', self::$PLUGIN_SLUG) ?>
-				<?php if ($this->get_option('active')): ?>
+				<?php if (count($conflicting_plugins) > 0): ?>
+					<span class="hm-inactive"><?php _e('Conflict', self::$PLUGIN_SLUG) ?></span>
+				<?php elseif ($this->get_option('active')): ?>
 					<span class="hm-active"><?php _e('Active', self::$PLUGIN_SLUG) ?></span>
 				<?php else: ?>
 					<span class="hm-inactive"><?php _e('Inactive', self::$PLUGIN_SLUG) ?></span>
@@ -421,6 +436,19 @@ EXT_DEFAULT
 	private function get_admin_bar_toggle_button() {
 		return '<span style="display:inline-block;width:16px;background:transparent url('.$this->get_asset('icon-16.png').') 50% 50% no-repeat; }">&nbsp;</span>'.
 			' heatmap';
+	}
+				
+				
+	
+	private function get_conflicting_plugins() {
+		$conflicts = array();
+		$all_plugins = get_plugins();
+		foreach (self::$CONFLICTING_PLUGINS as $conflicting_path) {
+			if (is_plugin_active($conflicting_path)) {
+				$conflicts[] = $all_plugins[$conflicting_path]['Name'];
+			}
+		}
+		return $conflicts;
 	}
 }
 
