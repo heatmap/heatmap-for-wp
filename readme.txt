@@ -2,7 +2,7 @@
 Contributors: heatmap
 Tags: analytics, heat map, heatmap, real time, realtime, tracking, click map, mouse map, statistics, funnel, conversion
 Requires at least: 3.1
-Tested up to: 4.5
+Tested up to: 4.6
 Stable tag: 0.4.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
