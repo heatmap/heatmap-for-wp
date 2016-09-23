@@ -3,7 +3,7 @@
 Plugin Name: heatmap for WordPress
 Plugin URI: http://wordpress.org/plugins/heatmap-for-wp/
 Description: Real-time analytics and event tracking for your WordPress site (see https://heatmap.me)
-Version: 0.4.0
+Version: 0.4.1
 Author: HeatMap, Inc
 Author URI: https://heatmap.me
 License: GPL2
@@ -187,8 +187,7 @@ p=e.getElementsByTagName(a)[0];p.parentNode.insertBefore(m,p);
 	private function check_account_active($frequency = 0) {
 		if ($this->get_option('active_last_check', 0) < time() - $frequency) {
 			$params = array(
-				'u' => get_bloginfo('url'),
-				'callback' => 'wp'
+				'u' => get_bloginfo('url')
 			);
 			if (defined('WP_HEATMAP_AFFILIATEID')) {
 				$params['aff'] = WP_HEATMAP_AFFILIATEID;
@@ -204,10 +203,9 @@ p=e.getElementsByTagName(a)[0];p.parentNode.insertBefore(m,p);
 			if (is_wp_error($check_response)) {
 				$check_err = $check_response->get_error_message();
 			} else {
-				$json_result = trim(preg_replace(array('/[\n\r]/', '/^wp/'), array('', ''), $check_response['body']), '();');
-				$check_result = json_decode($json_result, true);
+				$check_result = json_decode($check_response['body'], true);
 				if (!is_array($check_result) || !array_key_exists('active', $check_result)) {
-					$check_err = 'cannot parse jsonp response '.print_r($json_result,true);
+					$check_err = 'cannot parse json response '.print_r($json_result,true);
 				}
 			}
 			$options_new_values = array(
