@@ -46,6 +46,7 @@ class heatmapWP {
 	 * Main function of the singleton class
 	 */
 	private function __construct() {
+		// $this->check_account_active();
 		if (is_admin()) {
 			if (!$this->get_option('active')) {
 				$this->check_account_active(3600); // while not active, check every hour
@@ -85,11 +86,7 @@ class heatmapWP {
 		}
 	}
 	public function activate_plugin() {
-		if (!$this->check_account_active()) {
-			if ($check_err = $this->get_option('active_last_check_err')) {
-				die('Error while activating the plugin: please contact support (error: '.$check_err.')');
-			}
-		}
+		$this->check_account_active();
 	}
 	public function deactivate_plugin() {
 		wp_clear_scheduled_hook(self::$ACTION_PREFIX.'cron_check_account');
@@ -193,12 +190,12 @@ p=e.getElementsByTagName(a)[0];p.parentNode.insertBefore(m,p);
 				$params['aff'] = WP_HEATMAP_AFFILIATEID;
 			}
 			$check_url = '//heatmap.it/api/check/account?'.http_build_query($params);
-			$check_response = wp_remote_get('https:'.$check_url, array('timeout' => 10, 'sslverify' => false));
+			$check_response = wp_remote_get('https:'.$check_url, array('timeout' => 3, 'sslverify' => false));
 			$check_result = false;
 			$check_err = '';
 			if (is_wp_error($check_response)) {
 				// fallback to http
-				$check_response = wp_remote_get('http:'.$check_url, array('timeout' => 10));
+				$check_response = wp_remote_get('http:'.$check_url, array('timeout' => 3));
 			}
 			if (is_wp_error($check_response)) {
 				$check_err = $check_response->get_error_message();
@@ -214,9 +211,9 @@ p=e.getElementsByTagName(a)[0];p.parentNode.insertBefore(m,p);
 			);
 			if ('' === $check_err) {
 				$options_new_values['active'] = $this->array_get($check_result, 'active', false);
-			} elseif ($this->get_option('active_last_check_err')) {
-				// on second successive error, we deactivate the plugin 
-				$options_new_values['active'] = false;
+			} else {
+				// seems we can't call heatmap servers at the moment, let's enable it by default
+				$options_new_values['active'] = true;
 			}
 			$this->set_options($options_new_values);
 		}
@@ -283,10 +280,7 @@ EXT_DEFAULT
 		<h2>heatmap settings</h2>
 		<?php
 		$this->show_notice($this->array_get($_GET, 'saved'), 'updated', 'Notice', __('Your changes have been saved', self::$PLUGIN_SLUG));
-		$this->show_notice(!$this->get_option('active'), 'error', 'Error', 
-			__('The plugin cannot find your heatmap account', self::$PLUGIN_SLUG).'<br>'.
-			('' !== $this->get_option('active_last_check_err') ? sprintf('<small>[ error: %s ]</small>', $this->get_option('active_last_check_err')) : '')
-		);
+		$this->show_notice(!$this->get_option('active'), 'error', 'Error', __('The plugin cannot find your heatmap account', self::$PLUGIN_SLUG));
 		$conflicting_plugins = $this->get_conflicting_plugins();
 		$this->show_notice(count($conflicting_plugins) > 0, 'error', 'Error',
 			sprintf(__('heatmap won\'t work properly. Please deactivate the following conflicting plugins: %s', self::$PLUGIN_SLUG), implode(', ', $conflicting_plugins))
