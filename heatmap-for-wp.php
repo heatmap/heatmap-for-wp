@@ -163,7 +163,9 @@ class heatmapWP {
 <script type="text/javascript">
 <?php if ($this->get_option('ext_use')) echo $this->get_option('ext_code'); ?>
 <?php if (is_admin_bar_showing()): ?>
-window.heatmap_ext=window.heatmap_ext||{};window.heatmap_ext.recordDisabled=true;
+window.heatmap_ext=window.heatmap_ext||{};
+window.heatmap_ext.recordDisabled=true;
+window.heatmap_ext.vOffset=function() { return document.getElementById('wpadminbar').offsetHeight; };
 <?php endif; ?>
 (function(h,e,a,t,m,p) {
 m=e.createElement(a);m.async=!0;m.src=t;
@@ -409,17 +411,13 @@ EXT_DEFAULT
 		<div>
 			<h3><?php _e('Like this plugin?', self::$PLUGIN_SLUG); ?></h3>
 			<ul class="ul-square">
-				<li><a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/heatmap-for-wp?rate=5#postform"><?php _e('Leave a review on WordPress.org', self::$PLUGIN_SLUG); ?></a></li>
+				<li><a target="_blank" href="https://wordpress.org/support/plugin/heatmap-for-wp/reviews/?rate=5#new-post"><?php _e('Leave a review on WordPress.org', self::$PLUGIN_SLUG); ?></a></li>
 				<li><?php _e('Recommend the plugin to your friends:', self::$PLUGIN_SLUG); ?><iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwordpress.org%2Fplugins%2Fheatmap-for-wp&amp;width&amp;layout=standard&amp;action=recommend&amp;show_faces=false&amp;share=true&amp;height=35&amp;appId=259460820829840" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:20px; margin:0 0 -3px 8px;" allowTransparency="true"></iframe></li>
-				<li><a target="_blank" href="http://wordpress.org/plugins/heatmap-for-wp/"><?php _e('Vote "works" on the plugin page', self::$PLUGIN_SLUG); ?></a></li>
+				<li><a target="_blank" href="https://wordpress.org/plugins/heatmap-for-wp/"><?php _e('Vote "works" on the plugin page', self::$PLUGIN_SLUG); ?></a></li>
 				<li><?php _e('You can also promote heatmap on Facebook:', self::$PLUGIN_SLUG); ?><iframe src="//www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2Fheatmap.me&amp;width&amp;layout=standard&amp;action=recommend&amp;show_faces=false&amp;share=true&amp;height=35&amp;appId=259460820829840" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:20px; margin:0 0 -3px 8px;" allowTransparency="true"></iframe></li>
 			</ul>
 		</div>
 		<?php endif; ?>
-	</div>
-	<div class="hm-sidebar">
-		<h4><?php _e('Get the latest news: join us on Facebook', self::$PLUGIN_SLUG) ?></h4>
-		<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fheatmap.me&amp;height=558&amp;colorscheme=light&amp;show_faces=true&amp;header=false&amp;stream=true&amp;show_border=false&amp;appId=259460820829840" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100%; height:558px;" allowTransparency="true"></iframe>
 	</div>
 </div>
 	<?php
