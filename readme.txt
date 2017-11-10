@@ -2,8 +2,8 @@
 Contributors: heatmap
 Tags: analytics, heat map, heatmap, real time, realtime, tracking, click map, mouse map, statistics, funnel, conversion
 Requires at least: 3.1
-Tested up to: 4.8
-Stable tag: 0.4.1
+Tested up to: 4.9
+Stable tag: 0.5.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,12 @@ Not a bit. Our tag is very small and fully asynchronous. Plus, we set up powerfu
 
 
 == Changelog ==
+
+= 0.5.0 =
+* Show notice to remind to flush cache from cache plugins
+* Pushed the heatmap sidebar below the WP admin bar
+* Cleaned up the admin page
+
 = 0.4.0 =
 * Changed to use the new version of tag
 * Show warning on plugin conflicts
