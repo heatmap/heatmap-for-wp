@@ -158,6 +158,9 @@ class heatmapWP {
 			'ext_code' => $this->array_get($_POST, 'ext_code'),
 			'hide_button' => true && $this->array_get($_POST, 'hide_button'),
 		);
+		if($new_values['ext_use'] != $this->get_option('ext_use') || $new_values['ext_code'] != $this->get_option('ext_code')) {
+			$new_values['cache_notice'] = true;
+		}
 		$this->set_options($new_values);
 		wp_safe_redirect(add_query_arg('saved', '1', wp_get_referer()));
 	}
@@ -220,15 +223,15 @@ p=e.getElementsByTagName(a)[0];p.parentNode.insertBefore(m,p);
 				// seems we can't call heatmap servers at the moment, let's enable it by default
 				$new_active = true;
 			}
-			$new_options = array(
+			$new_values = array(
 				'active' => $new_active,
 				'active_last_check' => time(),
 				'active_last_check_err' => $check_err,
 			);
 			if (!$active && $new_active) {
-				$new_options['cache_notice'] = true;
+				$new_values['cache_notice'] = true;
 			}
-			$this->set_options($new_options);
+			$this->set_options($new_values);
 			return $new_active;
 		}
 		return $active;
@@ -293,8 +296,8 @@ EXT_DEFAULT
 		$cache_plugin_name = $this->get_cache_plugin_name();
 		$this->show_notice(
 			!!$cache_plugin_name,
-			'notice-warning is-dismissible', 'heatmap',
-			sprintf(__('To ensure data is collected, you may need to delete/flush your cache in %s settings.', self::$PLUGIN_SLUG), $cache_plugin_name)
+			'notice-warning is-dismissible', 'Flush your cache',
+			sprintf(__('To ensure heatmap data is collected correctly, you may need to delete/flush your cache in %s settings.', self::$PLUGIN_SLUG), sprintf('<strong>%s</strong>', $cache_plugin_name))
 		);
 		$this->set_options(array('cache_notice' => false));
 	}
