@@ -2,14 +2,14 @@
 /*
 Plugin Name: heatmap for WordPress
 Plugin URI: http://wordpress.org/plugins/heatmap-for-wp/
-Description: Real-time analytics and event tracking for your WordPress site (see https://heatmap.me)
-Version: 0.5.0
+Description: Real-time analytics and event tracking for your WordPress site (see https://heatmap.com)
+Version: 0.5.1
 Author: HeatMap, Inc
-Author URI: https://heatmap.me
+Author URI: https://heatmap.com
 License: GPL2
 */
 /*
-Copyright 2017 - HeatMap, Inc - https://heatmap.me/
+Copyright 2018 - HeatMap, Inc - https://heatmap.com/
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as 
@@ -342,7 +342,7 @@ EXT_DEFAULT
 				<h3><?php _e('Getting heatmap for your site', self::$PLUGIN_SLUG) ?></h3>
 				<ol>
 					<li>
-						<?php printf(__('Create your account on %s.', self::$PLUGIN_SLUG), '<a href="https://heatmap.me/" target="_blank">https://heatmap.me</a>'); ?>
+						<?php printf(__('Create your account on %s.', self::$PLUGIN_SLUG), '<a href="https://heatmap.com/" target="_blank">https://heatmap.com</a>'); ?>
 						<em><strong><?php _e('Free plan available', self::$PLUGIN_SLUG) ?></strong></em>
 						<br>
 						<?php _e('Easily sign up in less than 2 minutes by using your Facebook or Google account!', self::$PLUGIN_SLUG) ?>
@@ -396,7 +396,7 @@ EXT_DEFAULT
 						<td>
 							<label for="heatmap_ext_checkbox">
 								<input id="heatmap_ext_checkbox" type="checkbox" name="ext_use" value="1" <?php if ($this->get_option('ext_use')) echo 'checked'; ?>>
-								<?php _e('Use Javascript advanced customization', self::$PLUGIN_SLUG) ?> <small>(<a href="https://heatmap.me/docs/tech/heatmap_ext" target="_blank"><?php _e('documentation', self::$PLUGIN_SLUG) ?></a>)</small>
+								<?php _e('Use Javascript advanced customization', self::$PLUGIN_SLUG) ?> <small>(<a href="https://heatmap.com/docs/tech/heatmap_ext" target="_blank"><?php _e('documentation', self::$PLUGIN_SLUG) ?></a>)</small>
 							</label>
 						</td>
 					</tr>
